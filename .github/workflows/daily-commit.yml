@@ -1,0 +1,32 @@
+name: DevSync Daily Automated Commit
+
+on:
+  schedule:
+    # Runs every day at 08:30 UTC. (Minutes: 30, Hours: 8)
+    - cron: '30 8 * * *'
+  # Allows you to trigger the workflow manually for testing
+  workflow_dispatch: 
+
+jobs:
+  daily-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push the commit back to the repository
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # The required step name containing your specific email
+      - name: Update daily log for 22f3000243@ds.study.iitm.ac.in
+        run: |
+          echo "Automated activity tracked on $(date)" >> devsync_activity.log
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "22f3000243@ds.study.iitm.ac.in"
+          git config --local user.name "DevSync Automation Bot"
+          git add devsync_activity.log
+          # Only commit if there are changes to avoid workflow failures
+          git diff-index --quiet HEAD || git commit -m "chore: automated daily activity log update"
+          git push
